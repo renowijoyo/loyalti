@@ -19,6 +19,7 @@ import Link from 'next/link';
 
 interface TokenData {
   points: number;
+  billReference?: string | null;
   status: string;
   claimedByPhone?: string | null;
   expiresAt: string;
@@ -204,6 +205,12 @@ export default function ClaimClient({
             <div className="text-sm font-medium text-amber-100">
               Stempel Baru Siap Diklaim!
             </div>
+            {tokenData.billReference && (
+              <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/20 text-white/90 text-[11px] font-mono">
+                <span>Ref Transaksi:</span>
+                <span className="font-bold text-white">{tokenData.billReference}</span>
+              </div>
+            )}
           </div>
 
           <div className="p-6">

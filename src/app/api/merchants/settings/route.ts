@@ -5,17 +5,23 @@ import { sendWhatsAppMessage } from '@/lib/fonnte';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { merchantId, fonnteToken, testPhone } = body;
+    const { merchantId, fonnteToken, testPhone, qrExpiryMinutes } = body;
 
     if (!merchantId) {
       return NextResponse.json({ error: 'merchantId wajib diisi' }, { status: 400 });
     }
 
+    const dataToUpdate: { fonnteToken?: string | null; qrExpiryMinutes?: number } = {};
+    if (fonnteToken !== undefined) {
+      dataToUpdate.fonnteToken = fonnteToken?.trim() || null;
+    }
+    if (qrExpiryMinutes !== undefined) {
+      dataToUpdate.qrExpiryMinutes = Math.max(1, Number(qrExpiryMinutes) || 15);
+    }
+
     const updated = await prisma.merchant.update({
       where: { id: merchantId },
-      data: {
-        fonnteToken: fonnteToken?.trim() || null,
-      },
+      data: dataToUpdate,
     });
 
     let testResult = null;

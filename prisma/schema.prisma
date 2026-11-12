@@ -18,10 +18,12 @@ model Merchant {
   logoUrl         String?
   bannerUrl       String?
   primaryColor    String         @default("#4F46E5") // Brand theme hex
+  email           String?
   phone           String?
   address         String?
   fonnteToken     String?        // Fonnte WhatsApp API token per merchant
   fonnteSender    String?        // Optional Fonnte sender device ID
+  qrExpiryMinutes Int            @default(15)   // QR code expiration validity in minutes (managed by admin)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 

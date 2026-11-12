@@ -3,8 +3,8 @@ import prisma from '@/lib/prisma';
 import ManageClient from './ManageClient';
 
 export const metadata: Metadata = {
-  title: 'Pengaturan Program Loyalitas | Loyalti',
-  description: 'Kelola promosi, sistem poin, katalog hadiah, dan integrasi WhatsApp Fonnte.',
+  title: 'Admin Mode - Manajemen Poin & Hadiah | Loyalti',
+  description: 'Mode Admin untuk kelola promosi, riwayat transaksi stempel, katalog reward, dan konfigurasi toko.',
 };
 
 export default async function ManagePage() {
@@ -39,6 +39,7 @@ export default async function ManagePage() {
         logoUrl: m.logoUrl,
         primaryColor: m.primaryColor,
         fonnteToken: m.fonnteToken,
+        qrExpiryMinutes: m.qrExpiryMinutes || 15,
         description: m.description,
         promotions: m.promotions.map((p) => ({
           id: p.id,

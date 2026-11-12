@@ -64,6 +64,7 @@ export async function GET(
       success: true,
       token: claimToken.token,
       points: claimToken.points,
+      billReference: claimToken.billReference,
       status: currentStatus,
       expiresAt: claimToken.expiresAt,
       merchant: claimToken.merchant,
@@ -190,7 +191,7 @@ export async function POST(
           pointsRemaining: claimToken.points,
           expiresAt: batchExpiresAt,
           claimTokenId: claimToken.id,
-          notes: `Klaim via QR [${claimToken.pointSystem.name}]`,
+          notes: `Klaim via QR [${claimToken.pointSystem.name}]${claimToken.billReference ? ` #${claimToken.billReference}` : ''}`,
         },
       });
 

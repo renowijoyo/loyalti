@@ -22,11 +22,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verify merchant and point system
+    // Verify merchant and fetch configured QR expiration minutes
+    const merchant = await prisma.merchant.findUnique({
+      where: { id: merchantId },
+      select: { qrExpiryMinutes: true },
+    });
+
     let selectedPointSystemId = pointSystemId;
     if (!selectedPointSystemId) {
       const defaultPs = await prisma.pointSystem.findFirst({
         where: { merchantId, isActive: true },
+        orderBy: { createdAt: 'asc' },
       });
       if (!defaultPs) {
         return NextResponse.json(
@@ -37,9 +43,16 @@ export async function POST(req: NextRequest) {
       selectedPointSystemId = defaultPs.id;
     }
 
+    const effectiveExpiryMinutes =
+      Number(expiryMinutes) || merchant?.qrExpiryMinutes || 15;
+
     // Generate secure random token
     const token = crypto.randomBytes(8).toString('hex');
-    const expiresAt = new Date(Date.now() + expiryMinutes * 60 * 1000);
+    const expiresAt = new Date(Date.now() + effectiveExpiryMinutes * 60 * 1000);
+    const effectiveBillRef =
+      billReference && billReference.trim() !== ''
+        ? billReference.trim()
+        : `TRX-${Math.floor(100000 + Math.random() * 900000)}`;
 
     const claimToken = await prisma.claimToken.create({
       data: {
@@ -48,7 +61,7 @@ export async function POST(req: NextRequest) {
         pointSystemId: selectedPointSystemId,
         points: Number(points),
         transactionAmount: Number(transactionAmount),
-        billReference: billReference || null,
+        billReference: effectiveBillRef,
         expiresAt,
         status: 'PENDING',
       },
@@ -81,6 +94,8 @@ export async function POST(req: NextRequest) {
       token,
       claimUrl,
       qrDataUrl,
+      billReference: effectiveBillRef,
+      points: Number(points),
       claimToken,
     });
   } catch (error: unknown) {

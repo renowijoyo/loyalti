@@ -16,6 +16,8 @@ import {
   Save,
   Send,
   ArrowLeft,
+  QrCode,
+  SlidersHorizontal,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -63,6 +65,7 @@ interface MerchantManageData {
   logoUrl?: string | null;
   primaryColor?: string;
   fonnteToken?: string | null;
+  qrExpiryMinutes?: number;
   description?: string | null;
   promotions: PromotionData[];
   pointSystems: PointSystemData[];
@@ -88,8 +91,9 @@ export default function ManageClient({
 
   const [activeTab, setActiveTab] = useState<'point-systems' | 'rewards' | 'promotions' | 'whatsapp'>('point-systems');
 
-  // WhatsApp Fonnte Settings State
+  // WhatsApp Fonnte & QR Settings State
   const [fonnteToken, setFonnteToken] = useState(currentMerchant?.fonnteToken || '');
+  const [qrExpiryMinutes, setQrExpiryMinutes] = useState(currentMerchant?.qrExpiryMinutes || 15);
   const [testPhone, setTestPhone] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsNotice, setSettingsNotice] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
@@ -130,6 +134,7 @@ export default function ManageClient({
         body: JSON.stringify({
           merchantId: currentMerchant.id,
           fonnteToken,
+          qrExpiryMinutes: Number(qrExpiryMinutes) || 15,
           testPhone: testPhone || undefined,
         }),
       });
@@ -139,9 +144,20 @@ export default function ManageClient({
         setSettingsNotice({
           type: 'success',
           msg: testPhone
-            ? 'Token Fonnte tersimpan dan pesan uji coba berhasil dikirim!'
-            : 'Token Fonnte berhasil disimpan!',
+            ? 'Pengaturan tersimpan & pesan WhatsApp uji coba berhasil dikirim!'
+            : 'Pengaturan toko & masa berlaku QR berhasil disimpan!',
         });
+        setMerchants((prev) =>
+          prev.map((m) =>
+            m.id === currentMerchant.id
+              ? {
+                  ...m,
+                  fonnteToken: data.merchant?.fonnteToken,
+                  qrExpiryMinutes: data.merchant?.qrExpiryMinutes,
+                }
+              : m
+          )
+        );
       } else {
         setSettingsNotice({ type: 'error', msg: data.error || 'Gagal menyimpan pengaturan' });
       }
@@ -233,28 +249,46 @@ export default function ManageClient({
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col">
       {/* Top Navigation */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <header className="bg-white/90 backdrop-blur border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-20 shadow-sm">
+        <div className="flex items-center gap-2.5 sm:gap-4">
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Beranda</span>
+            <span className="hidden sm:inline">Beranda</span>
           </Link>
           <div className="h-4 w-px bg-slate-200" />
-          <h1 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <Store className="w-5 h-5 text-indigo-600" />
-            <span>Portal Manajemen Program Loyalitas</span>
+          <h1 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+            <span>Admin Mode</span>
+            <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full font-bold">
+              MANAGEMENT
+            </span>
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Central Mode Switcher (Cashier vs Admin) */}
+        <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold shadow-inner">
           <Link
             href="/merchant/pos"
-            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition-colors shadow-sm"
+            className="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1.5"
+            title="Pindah ke Cashier Mode"
           >
-            Buka Kasir POS
+            <QrCode className="w-3.5 h-3.5 text-amber-600" />
+            <span>Cashier</span>
+          </Link>
+          <span className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white shadow-sm flex items-center gap-1.5 cursor-default">
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>Admin</span>
+          </span>
+        </div>
+
+        <div className="hidden sm:flex items-center gap-3">
+          <Link
+            href="/merchant/register"
+            className="px-3 py-1.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-900 font-semibold text-xs transition-colors shadow-sm"
+          >
+            + Toko Baru
           </Link>
         </div>
       </header>
@@ -286,6 +320,7 @@ export default function ManageClient({
                 setSelectedMerchantId(e.target.value);
                 const next = merchants.find((m) => m.id === e.target.value);
                 setFonnteToken(next?.fonnteToken || '');
+                setQrExpiryMinutes(next?.qrExpiryMinutes || 15);
               }}
               className="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
@@ -381,7 +416,7 @@ export default function ManageClient({
             }`}
           >
             <MessageSquare className="w-4 h-4" />
-            <span>Integrasi WhatsApp Fonnte</span>
+            <span>Pengaturan Toko & Validitas QR</span>
           </button>
         </div>
 
@@ -749,51 +784,102 @@ export default function ManageClient({
           </div>
         )}
 
-        {/* TAB 4: WHATSAPP FONNTE SETTINGS */}
+        {/* TAB 4: STORE SETTINGS, QR VALIDITY & WHATSAPP FONNTE */}
         {activeTab === 'whatsapp' && (
           <div className="max-w-2xl bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold mb-2">
-                <MessageSquare className="w-3.5 h-3.5" />
-                <span>Fonnte WhatsApp API Gateway</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200/80 rounded-full text-xs font-bold mb-2">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-amber-600" />
+                <span>Pengaturan Mode Kasir & Notifikasi</span>
               </div>
               <h3 className="text-xl font-black text-slate-900">
-                Pengaturan WhatsApp Notifikasi
+                Pengaturan Toko & Masa Berlaku QR
               </h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Platform Loyalti menggunakan <b>Fonnte</b> untuk mengirimkan notifikasi stempel
-                masuk dan tautan kartu loyalitas langsung ke WhatsApp pelanggan setelah mereka scan QR.
+                Kelola masa berlaku QR code yang dihasilkan di Cashier Mode serta integrasi notifikasi WhatsApp Fonnte.
               </p>
             </div>
 
-            <form onSubmit={handleSaveFonnteSettings} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Fonnte Device API Token
-                </label>
-                <input
-                  type="text"
-                  value={fonnteToken}
-                  onChange={(e) => setFonnteToken(e.target.value)}
-                  placeholder="Masukkan token dari dashboard.fonnte.com"
-                  className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-mono font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                />
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Jika dikosongkan, sistem akan menggunakan token global atau mode simulasi log terminal.
-                </p>
+            <form onSubmit={handleSaveFonnteSettings} className="space-y-6">
+              {/* QR Validity Duration Setting */}
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-800">
+                      Masa Berlaku QR Code di Mode Kasir
+                    </label>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Durasi waktu sebelum QR stempel otomatis kedaluwarsa jika belum di-scan oleh pelanggan.
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 shrink-0">
+                    {qrExpiryMinutes} Menit
+                  </span>
+                </div>
+
+                {/* Preset minute buttons */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                  {[5, 15, 30, 60].map((mins) => (
+                    <button
+                      key={mins}
+                      type="button"
+                      onClick={() => setQrExpiryMinutes(mins)}
+                      className={`py-2 rounded-xl text-xs font-bold transition-all ${
+                        Number(qrExpiryMinutes) === mins
+                          ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
+                          : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      {mins} Menit {mins === 15 && '(Default)'}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="pt-1 flex items-center gap-2">
+                  <label className="text-[11px] font-semibold text-slate-600">
+                    Atau tentukan menit kustom:
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="1440"
+                    value={qrExpiryMinutes}
+                    onChange={(e) => setQrExpiryMinutes(Math.max(1, Number(e.target.value)))}
+                    className="w-24 bg-white border border-slate-200 text-slate-900 rounded-xl px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <span className="text-xs text-slate-500">menit</span>
+                </div>
               </div>
 
-              <div className="pt-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Kirim Pesan Uji Coba (Nomor WhatsApp Penerima)
-                </label>
-                <div className="flex gap-2">
+              {/* Fonnte WhatsApp API Gateway */}
+              <div className="border-t border-slate-100 pt-4 space-y-4">
+                <div>
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-1">
+                    <MessageSquare className="w-4 h-4 text-emerald-600" />
+                    <span>Fonnte WhatsApp API Token</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={fonnteToken}
+                    onChange={(e) => setFonnteToken(e.target.value)}
+                    placeholder="Masukkan token dari dashboard.fonnte.com"
+                    className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-mono font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Digunakan untuk mengirim notifikasi saldo & kartu stempel otomatis ke WhatsApp pelanggan.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Kirim Pesan Uji Coba (Nomor WhatsApp Penerima)
+                  </label>
                   <input
                     type="tel"
                     value={testPhone}
                     onChange={(e) => setTestPhone(e.target.value)}
                     placeholder="Contoh: 08123456789"
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -818,14 +904,14 @@ export default function ManageClient({
               <button
                 type="submit"
                 disabled={savingSettings}
-                className="w-full py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition-all disabled:opacity-50"
+                className="w-full py-3.5 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 transition-all disabled:opacity-50"
               >
                 {savingSettings ? (
                   'Menyimpan...'
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    <span>Simpan Pengaturan {testPhone && '& Kirim Pesan Uji Coba'}</span>
+                    <span>Simpan Pengaturan Toko & QR</span>
                   </>
                 )}
               </button>

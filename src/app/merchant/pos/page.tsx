@@ -3,8 +3,8 @@ import prisma from '@/lib/prisma';
 import PosClient from './PosClient';
 
 export const metadata: Metadata = {
-  title: 'POS Terminal Kasir | Loyalti',
-  description: 'Terminal kasir untuk menghasilkan QR code stempel loyalitas pelanggan secara langsung.',
+  title: 'Cashier Mode - Generate QR Stempel | Loyalti',
+  description: 'Mode Cashier untuk menghasilkan QR code stempel loyalitas pelanggan via ponsel atau terminal kasir.',
 };
 
 export default async function PosPage() {

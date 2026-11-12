@@ -45,6 +45,7 @@ export default async function ClaimPage({
       token={token}
       initialTokenData={{
         points: claimToken.points,
+        billReference: claimToken.billReference,
         status: claimToken.status === 'PENDING' && isExpired ? 'EXPIRED' : claimToken.status,
         claimedByPhone: claimToken.claimedByPhone,
         expiresAt: claimToken.expiresAt.toISOString(),
