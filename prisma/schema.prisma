@@ -1,0 +1,209 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Merchant {
+  id              String         @id @default(cuid())
+  name            String
+  slug            String         @unique
+  description     String?
+  logoUrl         String?
+  bannerUrl       String?
+  primaryColor    String         @default("#4F46E5") // Brand theme hex
+  phone           String?
+  address         String?
+  fonnteToken     String?        // Fonnte WhatsApp API token per merchant
+  fonnteSender    String?        // Optional Fonnte sender device ID
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  promotions      Promotion[]
+  pointSystems    PointSystem[]
+  rewards         Reward[]
+  claimTokens     ClaimToken[]
+  wallets         CustomerWallet[]
+  pointBatches    PointBatch[]
+  redemptions     Redemption[]
+}
+
+model Promotion {
+  id              String         @id @default(cuid())
+  merchantId      String
+  title           String
+  description     String?
+  bannerUrl       String?
+  startAt         DateTime
+  endAt           DateTime
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  merchant        Merchant       @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  pointSystems    PointSystem[]
+}
+
+model PointSystem {
+  id                    String       @id @default(cuid())
+  merchantId            String
+  promotionId           String?
+  name                  String       // e.g. "Kopi Loyalty Stamp", "Weekend double points"
+  description           String?
+  icon                  String       @default("star") // icon style for stamp card: coffee, star, shopping-bag, heart
+  // Point rules:
+  // FIXED: e.g. 1 stamp per visit/transaction
+  // AMOUNT_RATIO: e.g. every 10,000 IDR = 1 point
+  ruleType              String       @default("FIXED") // FIXED or AMOUNT_RATIO
+  pointsPerUnit         Int          @default(1)
+  amountPerPoint        Int          @default(10000)
+  minSpendAmount        Int          @default(0)
+  maxPointsPerTx        Int          @default(10)
+  
+  // Expiration settings:
+  // Point validity days from the date customer acquired it (0 = never expires)
+  pointValidityDays     Int          @default(90) // Points expire 90 days after earned, independent of promotion end date
+  
+  startAt               DateTime
+  endAt                 DateTime
+  isActive              Boolean      @default(true)
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  merchant              Merchant     @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  promotion             Promotion?   @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  rewards               Reward[]
+  claimTokens           ClaimToken[]
+}
+
+model Reward {
+  id                    String       @id @default(cuid())
+  merchantId            String
+  pointSystemId         String?      // Can belong to a specific point system or merchant general
+  title                 String       // e.g. "Free Americano", "Diskon 20% Maks Rp25.000"
+  description           String?
+  imageUrl              String?
+  pointsCost            Int          // Number of stamps/points needed
+  quota                 Int?         // Total stock/quota available (null = unlimited)
+  redeemedCount         Int          @default(0)
+  
+  // Voucher expiration:
+  // Once redeemed/unlocked, how long is the voucher valid (e.g. 30 days)
+  voucherValidityDays   Int          @default(30)
+  
+  startAt               DateTime
+  endAt                 DateTime
+  isActive              Boolean      @default(true)
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  merchant              Merchant     @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  pointSystem           PointSystem? @relation(fields: [pointSystemId], references: [id], onDelete: SetNull)
+  redemptions           Redemption[]
+}
+
+model Customer {
+  id              String           @id @default(cuid())
+  phone           String           @unique // Normalized format (e.g., 6281234567890)
+  name            String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  wallets         CustomerWallet[]
+  pointBatches    PointBatch[]
+  redemptions     Redemption[]
+  notificationLogs NotificationLog[]
+}
+
+model CustomerWallet {
+  id              String         @id @default(cuid())
+  customerId      String
+  merchantId      String
+  totalPoints     Int            @default(0)
+  lifetimePoints  Int            @default(0)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  customer        Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  merchant        Merchant       @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  pointBatches    PointBatch[]
+  redemptions     Redemption[]
+
+  @@unique([customerId, merchantId])
+}
+
+model PointBatch {
+  id              String         @id @default(cuid())
+  walletId        String
+  customerId      String
+  merchantId      String
+  pointsEarned    Int
+  pointsRemaining Int
+  expiresAt       DateTime?      // When this specific batch expires
+  status          String         @default("ACTIVE") // ACTIVE, DEPLETED, EXPIRED
+  claimTokenId    String?        // Reference to the QR claim token
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  wallet          CustomerWallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  customer        Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  merchant        Merchant       @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+}
+
+model ClaimToken {
+  id                  String         @id @default(cuid())
+  token               String         @unique // Secure random claim code
+  merchantId          String
+  pointSystemId       String
+  points              Int            @default(1)
+  transactionAmount   Int            @default(0)
+  billReference       String?
+  status              String         @default("PENDING") // PENDING, CLAIMED, EXPIRED
+  expiresAt           DateTime       // QR code valid for e.g. 15 minutes
+  claimedAt           DateTime?
+  claimedByPhone      String?
+  createdAt           DateTime       @default(now())
+
+  merchant            Merchant       @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  pointSystem         PointSystem    @relation(fields: [pointSystemId], references: [id], onDelete: Cascade)
+}
+
+model Redemption {
+  id              String         @id @default(cuid())
+  walletId        String
+  customerId      String
+  merchantId      String
+  rewardId        String
+  voucherCode     String         @unique // e.g. VCH-ABCD-1234
+  pointsSpent     Int
+  status          String         @default("ACTIVE") // ACTIVE, USED, EXPIRED
+  expiresAt       DateTime
+  usedAt          DateTime?
+  createdAt       DateTime       @default(now())
+
+  wallet          CustomerWallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  customer        Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  merchant        Merchant       @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  reward          Reward         @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+}
+
+model NotificationLog {
+  id              String         @id @default(cuid())
+  customerId      String?
+  phone           String
+  merchantId      String?
+  provider        String         @default("FONNTE")
+  message         String
+  status          String         @default("PENDING") // PENDING, SENT, FAILED
+  apiResponse     String?
+  createdAt       DateTime       @default(now())
+
+  customer        Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+}
