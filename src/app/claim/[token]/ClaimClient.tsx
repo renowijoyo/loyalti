@@ -350,7 +350,7 @@ export default function ClaimClient({
 
         <div className="text-center mt-6">
           <p className="text-[11px] text-slate-400">
-            Didukung oleh <span className="font-semibold text-slate-600">Lokaloyal</span> • Loyalty tanpa ribet akun
+            Didukung oleh <span className="font-semibold text-slate-600">Loyalti</span> • Loyalty tanpa ribet akun
           </p>
         </div>
       </div>

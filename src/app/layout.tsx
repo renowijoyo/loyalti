@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lokaloyal - Platform Loyalty & Stamp Card Modern",
+  title: "Loyalti - Platform Loyalty & Stamp Card Modern",
   description:
-    "Lokaloyal adalah platform loyalitas stempel digital untuk merchant dan pelanggan tanpa perlu registrasi akun atau download aplikasi.",
+    "Loyalti adalah platform loyalitas stempel digital untuk merchant dan pelanggan tanpa perlu registrasi akun atau download aplikasi.",
 };
 
 export default function RootLayout({

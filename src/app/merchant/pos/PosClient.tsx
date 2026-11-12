@@ -172,7 +172,7 @@ export default function PosClient({
           </div>
           <div>
             <h1 className="text-base font-bold text-white flex items-center gap-2">
-              Lokaloyal POS Terminal
+              Loyalti POS Terminal
               <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">
                 KASIR ONLINE
               </span>
@@ -399,7 +399,7 @@ export default function PosClient({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={activeSession.qrDataUrl}
-                    alt="QR Stempel Lokaloyal"
+                    alt="QR Stempel Loyalti"
                     className="w-64 h-64 object-contain"
                   />
                 </div>

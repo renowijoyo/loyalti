@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import ManageClient from './ManageClient';
 
 export const metadata: Metadata = {
-  title: 'Pengaturan Program Loyalitas | Lokaloyal',
+  title: 'Pengaturan Program Loyalitas | Loyalti',
   description: 'Kelola promosi, sistem poin, katalog hadiah, dan integrasi WhatsApp Fonnte.',
 };
 

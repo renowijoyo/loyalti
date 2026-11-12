@@ -761,7 +761,7 @@ export default function ManageClient({
                 Pengaturan WhatsApp Notifikasi
               </h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Platform Lokaloyal menggunakan <b>Fonnte</b> untuk mengirimkan notifikasi stempel
+                Platform Loyalti menggunakan <b>Fonnte</b> untuk mengirimkan notifikasi stempel
                 masuk dan tautan kartu loyalitas langsung ke WhatsApp pelanggan setelah mereka scan QR.
               </p>
             </div>

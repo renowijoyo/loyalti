@@ -24,7 +24,7 @@ export default function Home() {
               L
             </div>
             <div>
-              <span className="text-xl font-black tracking-tight text-white">lokaloyal</span>
+              <span className="text-xl font-black tracking-tight text-white">loyalti</span>
               <span className="text-[10px] ml-2 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">
                 WhatsApp + Fonnte
               </span>
@@ -102,7 +102,7 @@ export default function Home() {
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-black text-white">Alur Transaksi & Klaim Stempel</h2>
             <p className="text-xs sm:text-sm text-slate-400 mt-2">
-              Bagaimana Lokaloyal menghubungkan kasir, scan QR, WhatsApp, dan reward:
+              Bagaimana Loyalti menghubungkan kasir, scan QR, WhatsApp, dan reward:
             </p>
           </div>
 
@@ -223,7 +223,7 @@ export default function Home() {
         <div className="mt-12 bg-slate-800/30 border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-left">
             <div className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-              Contoh Merchant Terdaftar di Database Lokaloyal
+              Contoh Merchant Terdaftar di Database Loyalti
             </div>
             <h4 className="text-xl font-bold text-white">
               Coba Buka Kartu Loyalitas Langsung:
@@ -253,7 +253,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800 mt-auto py-8 text-center text-xs text-slate-500">
-        <p>Lokaloyal © 2026 • Platform Loyalty Stempel WhatsApp Modern</p>
+        <p>Loyalti © 2026 • Platform Loyalty Stempel WhatsApp Modern</p>
       </footer>
     </div>
   );

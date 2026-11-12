@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import PosClient from './PosClient';
 
 export const metadata: Metadata = {
-  title: 'POS Terminal Kasir | Lokaloyal',
+  title: 'POS Terminal Kasir | Loyalti',
   description: 'Terminal kasir untuk menghasilkan QR code stempel loyalitas pelanggan secara langsung.',
 };
 

@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { normalizePhoneNumber } from '@/lib/fonnte';
 
 export const metadata: Metadata = {
-  title: 'Kartu Stempel & Voucher | Lokaloyal',
+  title: 'Kartu Stempel & Voucher | Loyalti',
   description: 'Cek saldo stempel loyalitas dan tukarkan voucher hadiah.',
 };
 

@@ -220,7 +220,7 @@ export default function WalletClient({
             <span>Beranda</span>
           </Link>
           <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">
-            Lokaloyal Pass
+            Loyalti Pass
           </div>
         </div>
 

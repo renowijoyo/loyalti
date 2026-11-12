@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     if (testPhone) {
       testResult = await sendWhatsAppMessage({
         phone: testPhone,
-        message: `Halo! Ini adalah pesan uji coba integrasi WhatsApp Fonnte untuk *${updated.name}* melalui platform *Lokaloyal* 🚀`,
+        message: `Halo! Ini adalah pesan uji coba integrasi WhatsApp Fonnte untuk *${updated.name}* melalui platform *Loyalti* 🚀`,
         merchantId: updated.id,
         customToken: updated.fonnteToken,
       });

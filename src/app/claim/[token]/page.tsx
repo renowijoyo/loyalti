@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 
 export const metadata: Metadata = {
-  title: 'Klaim Stempel Loyalitas | Lokaloyal',
+  title: 'Klaim Stempel Loyalitas | Loyalti',
   description: 'Klaim stempel dan reward kamu dengan mudah tanpa perlu install aplikasi.',
 };
 
