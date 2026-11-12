@@ -1,0 +1,27 @@
+name: Deploy Loyalti
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to loyalti.gamantha.my.id via SSH
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /var/www/html/loyalti
+            sudo -H -u www-data git pull origin master
+            sudo -H -u www-data npm ci
+            sudo -H -u www-data npx prisma generate
+            sudo -H -u www-data npx prisma db push
+            sudo -H -u www-data npm run build
+            sudo systemctl restart loyalti.service
