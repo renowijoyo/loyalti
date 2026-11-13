@@ -24,6 +24,7 @@ model Merchant {
   fonnteToken     String?        // Fonnte WhatsApp API token per merchant
   fonnteSender    String?        // Optional Fonnte sender device ID
   qrExpiryMinutes Int            @default(15)   // QR code expiration validity in minutes (managed by admin)
+  apiKey          String?        @unique        // External POS integration API key (e.g. loy_live_...)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
@@ -208,4 +209,35 @@ model NotificationLog {
   createdAt       DateTime       @default(now())
 
   customer        Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+}
+
+model CustomerAccount {
+  id              String              @id @default(cuid())
+  email           String              @unique
+  name            String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  phoneLinks      CustomerPhoneLink[]
+  sessions        CustomerSession[]
+}
+
+model CustomerPhoneLink {
+  id              String          @id @default(cuid())
+  accountId       String
+  phone           String          @unique // Normalized WhatsApp number (e.g., 6281234567890)
+  label           String?         // Optional label e.g. "Personal", "Work"
+  createdAt       DateTime        @default(now())
+
+  account         CustomerAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+model CustomerSession {
+  id              String          @id @default(cuid())
+  accountId       String
+  token           String          @unique
+  expiresAt       DateTime
+  createdAt       DateTime        @default(now())
+
+  account         CustomerAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }

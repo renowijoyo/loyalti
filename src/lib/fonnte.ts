@@ -188,3 +188,28 @@ export function buildClaimNotificationMessage({
     `_Terima kasih telah berbelanja di ${merchantName}!_`
   );
 }
+
+/**
+ * Message template builder for WhatsApp number binding confirmation
+ */
+export function buildPhoneBindNotificationMessage({
+  displayPhone,
+  email,
+  label,
+  accountUrl,
+}: {
+  displayPhone: string;
+  email: string;
+  label?: string | null;
+  accountUrl: string;
+}): string {
+  const labelLine = label ? `🏷️ *Label:* ${label}\n` : '';
+  return (
+    `✅ *Nomor WhatsApp Berhasil Terhubung ke Akun Loyalti!*\n\n` +
+    `📱 *Nomor WA:* ${displayPhone}\n` +
+    labelLine +
+    `📧 *Email Akun:* ${email}\n\n` +
+    `Sekarang kamu bisa melihat seluruh poin dan riwayat transaksi dari nomor ini di:\n${accountUrl}\n\n` +
+    `_Jika kamu tidak merasa melakukan tindakan ini, segera lepaskan nomor ini dari halaman Akun Pelanggan._`
+  );
+}

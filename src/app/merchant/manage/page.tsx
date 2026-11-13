@@ -40,6 +40,7 @@ export default async function ManagePage() {
         primaryColor: m.primaryColor,
         fonnteToken: m.fonnteToken,
         qrExpiryMinutes: m.qrExpiryMinutes || 15,
+        apiKey: m.apiKey,
         description: m.description,
         promotions: m.promotions.map((p) => ({
           id: p.id,

@@ -11,6 +11,8 @@ import {
   ShieldCheck,
   Zap,
   Coffee,
+  Code2,
+  User,
 } from 'lucide-react';
 
 export default function Home() {
@@ -44,6 +46,20 @@ export default function Home() {
               className="text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3.5 py-2 rounded-xl transition-all shadow-sm"
             >
               + Daftar Toko
+            </Link>
+            <Link
+              href="/docs/pos-api"
+              className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all shadow-sm bg-white hidden md:inline-flex items-center gap-1.5"
+            >
+              <Code2 className="w-3.5 h-3.5 text-indigo-600" />
+              <span>POS API</span>
+            </Link>
+            <Link
+              href="/account"
+              className="text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+            >
+              <User className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Akun Pelanggan</span>
             </Link>
             <Link
               href="/merchant/manage"
@@ -113,6 +129,14 @@ export default function Home() {
           >
             <Store className="w-5 h-5 text-indigo-600" />
             <span>Admin Mode (Kelola Toko)</span>
+          </Link>
+
+          <Link
+            href="/account"
+            className="px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-md flex items-center gap-2 transition-all"
+          >
+            <User className="w-5 h-5" />
+            <span>Akun Pelanggan (Email &amp; WA)</span>
           </Link>
 
           <Link
@@ -245,6 +269,34 @@ export default function Home() {
               Setiap QR code memiliki token acak berdurasi terbatas dan hanya dapat diklaim satu kali
               oleh satu nomor telepon.
             </p>
+          </div>
+        </div>
+
+        {/* External POS API Integration Highlight */}
+        <div className="mt-12 bg-slate-900 text-white rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg">
+          <div className="space-y-2 text-center md:text-left">
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-300 uppercase tracking-wider">
+              <Code2 className="w-4 h-4" />
+              <span>Open REST API v1 • Integrasi Kasir Eksternal</span>
+            </div>
+            <h4 className="text-xl font-bold text-white">
+              Sudah Pakai Sistem POS Sendiri? Hubungkan via API!
+            </h4>
+            <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+              Integrasikan Moka, Pawoon, Majoo, atau POS kustom Anda ke Loyalti dengan API Key per merchant.
+              Terbitkan QR klaim atau poin langsung, cek saldo pelanggan, dan validasi voucher hadiah langsung dari mesin kasir Anda.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3 shrink-0">
+            <Link
+              href="/docs/pos-api"
+              className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-2 transition-all shadow-md"
+            >
+              <Code2 className="w-4 h-4" />
+              <span>Lihat Dokumentasi POS API</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
 

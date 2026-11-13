@@ -1,22 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { sendWhatsAppMessage } from '@/lib/fonnte';
+import { generatePosApiKey } from '@/lib/pos-auth';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { merchantId, fonnteToken, testPhone, qrExpiryMinutes } = body;
+    const { merchantId, fonnteToken, testPhone, qrExpiryMinutes, regenerateApiKey } = body;
 
     if (!merchantId) {
       return NextResponse.json({ error: 'merchantId wajib diisi' }, { status: 400 });
     }
 
-    const dataToUpdate: { fonnteToken?: string | null; qrExpiryMinutes?: number } = {};
+    const dataToUpdate: {
+      fonnteToken?: string | null;
+      qrExpiryMinutes?: number;
+      apiKey?: string;
+    } = {};
     if (fonnteToken !== undefined) {
       dataToUpdate.fonnteToken = fonnteToken?.trim() || null;
     }
     if (qrExpiryMinutes !== undefined) {
       dataToUpdate.qrExpiryMinutes = Math.max(1, Number(qrExpiryMinutes) || 15);
+    }
+    if (regenerateApiKey) {
+      dataToUpdate.apiKey = generatePosApiKey();
     }
 
     const updated = await prisma.merchant.update({

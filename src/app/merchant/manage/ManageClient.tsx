@@ -18,6 +18,10 @@ import {
   ArrowLeft,
   QrCode,
   SlidersHorizontal,
+  KeyRound,
+  Copy,
+  RefreshCw,
+  ExternalLink,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -66,6 +70,7 @@ interface MerchantManageData {
   primaryColor?: string;
   fonnteToken?: string | null;
   qrExpiryMinutes?: number;
+  apiKey?: string | null;
   description?: string | null;
   promotions: PromotionData[];
   pointSystems: PointSystemData[];
@@ -96,6 +101,8 @@ export default function ManageClient({
   const [qrExpiryMinutes, setQrExpiryMinutes] = useState(currentMerchant?.qrExpiryMinutes || 15);
   const [testPhone, setTestPhone] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
+  const [regeneratingKey, setRegeneratingKey] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
   const [settingsNotice, setSettingsNotice] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
   // Modal State for New Point System
@@ -167,6 +174,48 @@ export default function ManageClient({
     } finally {
       setSavingSettings(false);
     }
+  };
+
+  const handleRegenerateApiKey = async () => {
+    if (!currentMerchant) return;
+    setRegeneratingKey(true);
+    setSettingsNotice(null);
+    try {
+      const res = await fetch('/api/merchants/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          merchantId: currentMerchant.id,
+          regenerateApiKey: true,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMerchants((prev) =>
+          prev.map((m) =>
+            m.id === currentMerchant.id ? { ...m, apiKey: data.merchant?.apiKey } : m
+          )
+        );
+        setSettingsNotice({
+          type: 'success',
+          msg: 'POS API Key baru berhasil dibuat! Gunakan header X-API-Key pada sistem POS Anda.',
+        });
+      } else {
+        setSettingsNotice({ type: 'error', msg: data.error || 'Gagal membuat API Key' });
+      }
+    } catch (err) {
+      console.error(err);
+      setSettingsNotice({ type: 'error', msg: 'Terjadi kesalahan sistem' });
+    } finally {
+      setRegeneratingKey(false);
+    }
+  };
+
+  const handleCopyApiKey = () => {
+    if (!currentMerchant?.apiKey) return;
+    navigator.clipboard.writeText(currentMerchant.apiKey);
+    setCopiedKey(true);
+    setTimeout(() => setCopiedKey(false), 2000);
   };
 
   const handleCreatePointSystem = async (e: React.FormEvent) => {
@@ -916,6 +965,67 @@ export default function ManageClient({
                 )}
               </button>
             </form>
+
+            {/* External POS Integration API Key */}
+            <div className="mt-8 pt-8 border-t border-slate-200 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <KeyRound className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">
+                      Integrasi API POS Eksternal
+                    </h4>
+                    <p className="text-[11px] text-slate-500">
+                      Hubungkan Moka, Pawoon, Majoo, atau sistem kasir kustom Anda ke Loyalti.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/docs/pos-api"
+                  className="text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all"
+                >
+                  <span>Baca Dokumentasi API</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={currentMerchant?.apiKey || 'Belum ada API Key — klik Generate di samping'}
+                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-mono text-slate-700 focus:outline-none"
+                  />
+                  {currentMerchant?.apiKey && (
+                    <button
+                      type="button"
+                      onClick={handleCopyApiKey}
+                      className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>{copiedKey ? 'Tersalin!' : 'Salin'}</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleRegenerateApiKey}
+                    disabled={regeneratingKey}
+                    className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${regeneratingKey ? 'animate-spin' : ''}`} />
+                    <span>{currentMerchant?.apiKey ? 'Rotate Key' : 'Generate API Key'}</span>
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Kirim header <code className="px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-800 font-mono">x-api-key</code> atau{' '}
+                  <code className="px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-800 font-mono">Authorization: Bearer &lt;key&gt;</code> ke endpoint{' '}
+                  <code className="px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-800 font-mono">/api/v1/pos/*</code>.
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </main>
